@@ -3,9 +3,7 @@ package br.edu.ifsp.scl.sc3043959.postviewer.ui.composable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,16 +26,16 @@ fun MainNavHost(
     postViewModel: PostViewModel,
     modifier: Modifier = Modifier
 ) {
-    // NavHost é o ponto central da navegação: ele associa cada rota a uma tela.
+    // NavHost: o ponto central da navegação: ele associa cada rota a uma tela.
     // A primeira tela aberta pelo app é definida em startDestination.
     NavHost(
         navController = mainNavHostController,
         startDestination = Screen.PostList.route,
         modifier = modifier
     ) {
-        // Rota da lista. Ao clicar num post, chama onPostClick para navegar a tela de detalhes correspondente.
+        // Rota da lista. A tela recebe uma função de click e não conhece os detalhes de navegação.
         composable(route = Screen.PostList.route) {
-            PostListNavigationPlaceholder(
+            PostListScreen(
                 postViewModel = postViewModel,
                 onPostClick = { postId ->
                     // createRoute monta a string com o id real do post.
@@ -62,47 +60,6 @@ fun MainNavHost(
                 postId = postId,
                 postViewModel = postViewModel
             )
-        }
-    }
-}
-
-@Composable
-private fun PostListNavigationPlaceholder(
-    postViewModel: PostViewModel,
-    onPostClick: (Int) -> Unit
-) {
-    // collectAsState transforma o StateFlow do ViewModel em estado observavel pelo Compose.
-    // Quando o ViewModel atualiza postsUiState, esta tela recompõe automaticamente.
-    val postsUiState by postViewModel.postsUiState.collectAsState()
-
-    // Placeholder
-    val firstPost = postsUiState.posts.firstOrNull()
-
-    // Tela provisoria
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = "Lista de posts",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Text(text = "Posts carregados: ${postsUiState.posts.size}")
-
-        postsUiState.errorMessage?.let { errorMessage ->
-            // let executa este bloco somente quando existe mensagem de erro.
-            Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
-        }
-
-        Button(
-            enabled = firstPost != null,
-            onClick = { firstPost?.let { onPostClick(it.id) } },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Abrir primeiro post")
         }
     }
 }
