@@ -7,14 +7,18 @@ import br.edu.ifsp.scl.sc3043959.postviewer.model.database.PostViewerDatabase
 import br.edu.ifsp.scl.sc3043959.postviewer.model.entity.LocalComment
 import br.edu.ifsp.scl.sc3043959.postviewer.model.network.JsonPlaceholderService
 
+// Repository centraliza as fontes de dados do app.
+// A UI e o ViewModel não precisam saber se o dado vem da API ou do banco local.
 object PostRepository {
     private lateinit var applicationContext: Context
 
     fun init(applicationContext: Context) {
+        // applicationContext vive enquanto o app estiver aberto. Isso evita manter referência a uma Activity.
         this.applicationContext = applicationContext
     }
 
-    // O banco é criado sob demanda para evitar custo de inicializacao antes do primeiro uso.
+    // Banco criado sob demanda para evitar custo de inicialização antes do primeiro uso.
+    // by lazy também garante que a mesma instancia do DAO seja reaproveitada.
     private val localCommentDao: LocalCommentDao by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -32,6 +36,7 @@ object PostRepository {
         localCommentDao.getCommentsByPostId(postId)
 
     suspend fun addLocalComment(postId: Int, body: String) {
+        // id não é informado porque o Room gera automaticamente pela chave primaria.
         localCommentDao.addComment(
             LocalComment(
                 postId = postId,
