@@ -13,4 +13,7 @@ interface LocalCommentDao {
 
     @Insert
     suspend fun addComment(localComment: LocalComment)
+
+    @Query("SELECT COUNT(*) FROM local_comment WHERE postId = :postId")
+    suspend fun getCommentsCountByPostId(postId: Int): Int
 }

@@ -44,4 +44,7 @@ object PostRepository {
             )
         )
     }
+
+    suspend fun getLocalCommentsCountByPostId(postId: Int) =
+        localCommentDao.getCommentsCountByPostId(postId)
 }

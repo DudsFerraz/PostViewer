@@ -16,8 +16,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -50,7 +54,8 @@ fun PostListScreen(
             PostListContent(
                 posts = postsUiState.posts,
                 onPostClick = onPostClick,
-                modifier = modifier
+                modifier = modifier,
+                postViewModel = postViewModel
             )
         }
     }
@@ -99,7 +104,8 @@ private fun ErrorContent(
 private fun PostListContent(
     posts: List<ApiPost>,
     onPostClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    postViewModel: PostViewModel
 ) {
     // LazyColumn renderiza apenas os itens visíveis, evita problemas com listas grandes.
     LazyColumn(
@@ -113,7 +119,8 @@ private fun PostListContent(
         ) { post ->
             PostListItem(
                 post = post,
-                onPostClick = onPostClick
+                onPostClick = onPostClick,
+                postViewModel = postViewModel,
             )
         }
     }
@@ -122,8 +129,15 @@ private fun PostListContent(
 @Composable
 private fun PostListItem(
     post: ApiPost,
-    onPostClick: (Int) -> Unit
+    onPostClick: (Int) -> Unit,
+    postViewModel: PostViewModel
 ) {
+    var commentsCount by remember(post.id) { mutableIntStateOf(0) }
+
+    LaunchedEffect(post.id) {
+        commentsCount = postViewModel.loadPostCommentCount(post.id)
+    }
+
     // Card deixa cada post visualmente separado e a area inteira clicavel.
     Card(
         modifier = Modifier
@@ -144,6 +158,11 @@ private fun PostListItem(
                 text = "Post #${post.id}",
                 modifier = Modifier.padding(top = 8.dp),
                 style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Total Comments: $commentsCount",
+                style = MaterialTheme.typography.titleMedium
             )
         }
     }

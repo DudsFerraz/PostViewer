@@ -94,6 +94,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    suspend fun loadPostCommentCount(postId: Int): Int {
+        val localCommentsCount = postRepository.getLocalCommentsCountByPostId(postId)
+        val apiCommentsCount = postRepository.getApiCommentsByPostId(postId).size
+        return localCommentsCount + apiCommentsCount
+    }
+
     fun addLocalComment(postId: Int, body: String) {
 
         val sanitizedBody = body.trim()
